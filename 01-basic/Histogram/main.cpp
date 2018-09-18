@@ -3,6 +3,7 @@
 #include <iomanip>
 #include <stdint.h>
 #include <stdlib.h>
+#include "Histogram.hpp"
 #include "main.hpp"
 using namespace std;
 
@@ -31,40 +32,33 @@ int main(int argc, char *argv[])
     cout << "First two bytes: " << setfill('0') << setw(2) << hex << *memblock + 0 << " " << *memblock + 1 << endl << endl;
 
     // calculate the histograms
-    histogramDataStructure histogramData;
+    Histogram histogram;
 
-    for (int i = 0; i < 255; i++) {
-        histogramData.red[i] = 0;
-        histogramData.greenRed[i] = 0;
-        histogramData.greenBlue[i] = 0;
-        histogramData.blue[i] = 0;
-    }
+    get_histograms(memblock, histogram);
 
-    get_histograms(memblock, histogramData);
+    // cout << "red histogram: ";
+    // for (int i = 0; i < 255; i++) {
+    //     cout << dec << histogramData.red[i] << ' ';
+    // }
+    // cout << endl << endl;
 
-    cout << "red histogram: ";
-    for (int i = 0; i < 255; i++) {
-        cout << dec << histogramData.red[i] << ' ';
-    }
-    cout << endl << endl;
+    // cout << "greenRed histogram: ";
+    // for (int i = 0; i < 255; i++) {
+    //     cout << dec << histogramData.greenRed[i] << ' ';
+    // }
+    // cout << endl << endl;
 
-    cout << "greenRed histogram: ";
-    for (int i = 0; i < 255; i++) {
-        cout << dec << histogramData.greenRed[i] << ' ';
-    }
-    cout << endl << endl;
+    // cout << "greenBlue histogram: ";
+    // for (int i = 0; i < 255; i++) {
+    //     cout << dec << histogramData.greenBlue[i] << ' ';
+    // }
+    // cout << endl << endl;
 
-    cout << "greenBlue histogram: ";
-    for (int i = 0; i < 255; i++) {
-        cout << dec << histogramData.greenBlue[i] << ' ';
-    }
-    cout << endl << endl;
-
-    cout << "blue histogram: ";
-    for (int i = 0; i < 255; i++) {
-        cout << dec << histogramData.blue[i] << ' ';
-    }
-    cout << endl << endl;
+    // cout << "blue histogram: ";
+    // for (int i = 0; i < 255; i++) {
+    //     cout << dec << histogramData.blue[i] << ' ';
+    // }
+    // cout << endl << endl;
 
     free(memblock);
   }
@@ -72,7 +66,7 @@ int main(int argc, char *argv[])
   return 0;
 }
 
-void get_histograms(uint8_t * data, histogramDataStructure & histogramData) {
+void get_histograms(uint8_t * data, Histogram histogram) {
     // Frame has 2218 lines, first 16 are optical black, next there are 6 not to be used lines.
     // The 'active' area, height 2160, is centered in the remaining area, so with a border of 18 leading and trailing lines.
     // The width is 3864 of which the active area is 3840, so 12 leading and trailing columns.
@@ -106,10 +100,10 @@ void get_histograms(uint8_t * data, histogramDataStructure & histogramData) {
         {
             // Increment the histogram bin corresponding to the current sub-pixel value
             // Note that mBayer is used to select the correct color for the current pixel coordinate
-            histogramData.red[0xFF & data[offsetRowOne    ]]++; // Top left
-            histogramData.greenRed[0xFF & data[offsetRowOne + 1]]++; // Top right
-            histogramData.greenBlue[0xFF & data[offsetRowTwo    ]]++; // Bottom left
-            histogramData.blue[0xFF & data[offsetRowTwo + 1]]++; // Bottom right
+            histogram.getRedHistogram()[0xFF & data[offsetRowOne    ]]++; // Top left - red
+            histogram.getGreenRedHistogram()[0xFF & data[offsetRowOne + 1]]++; // Top right - greenRed
+            histogram.getGreenBlueHistogram()[0xFF & data[offsetRowTwo    ]]++; // Bottom left - greenBlue
+            histogram.getBlueHistogram()[0xFF & data[offsetRowTwo + 1]]++; // Bottom right - blue
 
             offsetRowOne += colStep;
             offsetRowTwo += colStep;

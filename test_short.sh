@@ -49,7 +49,7 @@ do
     cd $ROOT_DIR
     if [ -d "$ROOT_DIR/$dir/build" ]; then
         echo "deleting $dir/build"
-        rm -r $dir/build
+        #rm -r $dir/build
     fi
 
     if [ -f "$dir/pre_test.sh" ]; then
@@ -69,8 +69,8 @@ do
             exit 1
         fi
     else
-        cd $dir && mkdir -p build && cd build && cmake .. && make
-        #cd $dir && cd build && make
+        #cd $dir && mkdir -p build && cd build && cmake .. && make
+        cd $dir && cd build && make
         if [ $? -ne 0 ]; then
             echo "Error running example $dir"
             exit 1
