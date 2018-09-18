@@ -2,8 +2,8 @@
 
 # print out cmake information to help with debugging.
 
-cmake --version
-cmake --help
+#cmake --version
+#cmake --help
 
 # Find the directory this test script is in and then run them from there
 EXAMPLES_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
@@ -11,31 +11,32 @@ echo "running examples in $EXAMPLES_DIR"
 
 cd $EXAMPLES_DIR
 
-dirs=(./01-basic/A-hello-cmake \
-./01-basic/B-hello-headers \
-./01-basic/C-static-library \
-./01-basic/D-shared-library \
-./01-basic/E-installing \
-./01-basic/F-build-type \
-./01-basic/G-compile-flags \
-./01-basic/H-third-party-library \
-./01-basic/I-compiling-with-clang \
-./01-basic/J-building-with-ninja \
-./01-basic/K-imported-targets \
-./01-basic/L-cpp-standard/i-common-method \
-./01-basic/L-cpp-standard/ii-cxx-standard \
-./01-basic/L-cpp-standard/iii-compile-features \
-./02-sub-projects/A-basic \
-./03-code-generation/protobuf \
-./03-code-generation/configure-files \
-./04-static-analysis/cppcheck \
-./04-static-analysis/cppcheck-compile-commands \
-./04-static-analysis/clang-analyzer \
-./04-static-analysis/clang-format \
-./05-unit-testing/boost \
-./05-unit-testing/google-test-download \
-./05-unit-testing/catch-vendored \
-./06-installer/deb \
+dirs=(./01-basic/Histogram \
+#./01-basic/A-hello-cmake \
+#./01-basic/B-hello-headers \
+#./01-basic/C-static-library \
+#./01-basic/D-shared-library \
+#./01-basic/E-installing \
+#./01-basic/F-build-type \
+#./01-basic/G-compile-flags \
+#./01-basic/H-third-party-library \
+#./01-basic/I-compiling-with-clang \
+#./01-basic/J-building-with-ninja \
+#./01-basic/K-imported-targets \
+#./01-basic/L-cpp-standard/i-common-method \
+#./01-basic/L-cpp-standard/ii-cxx-standard \
+#./01-basic/L-cpp-standard/iii-compile-features \
+#./02-sub-projects/A-basic \
+#./03-code-generation/protobuf \
+#./03-code-generation/configure-files \
+#./04-static-analysis/cppcheck \
+#./04-static-analysis/cppcheck-compile-commands \
+#./04-static-analysis/clang-analyzer \
+#./04-static-analysis/clang-format \
+#./05-unit-testing/boost \
+#./05-unit-testing/google-test-download \
+#./05-unit-testing/catch-vendored \
+#./06-installer/deb \
 )
 
 ROOT_DIR=`pwd`
@@ -83,6 +84,10 @@ do
             exit 1
         fi
     fi
+
+echo "Running now ..."
+$ROOT_DIR/$dir/build/hello_cmake
+
 done
 
 echo ""
