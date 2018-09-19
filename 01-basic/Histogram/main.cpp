@@ -46,13 +46,27 @@ int main(int argc, char *argv[])
 
     float observed = histogram.get2proclimitMaximum();
     float offset = calc_offset(memblock);
-    float target = 0.8;
-    float gain = (target-offset)/(observed-offset);
+    float target = TARGET_PERCENTILE_VALUE;
 
     cout << "observed = " << observed << endl;
     cout << "offset = " << offset << endl;
     cout << "target = " << target << endl;
-    cout << "gain = " << gain << endl;
+
+    if (offset >= target) {
+        cout << "Abnormally high black level, exposure time will not be updated" << endl;
+    } else  {
+        float gain;
+        float exposuretime;
+        if (offset >= observed) {
+            cout << "Observed percentile value is below the black level, exposure time will be set to maximum" << endl;
+            exposuretime = MAX_EXPOSURE_TIME;
+        } else {
+            gain = (target-offset)/(observed-offset);
+            exposuretime = min(MAX_EXPOSURE_TIME*gain, MAX_EXPOSURE_TIME);
+        }
+        cout << "gain = " << gain << endl;
+        cout << "exposuretime = " << exposuretime << endl;
+    }
         
     free(memblock);
   }

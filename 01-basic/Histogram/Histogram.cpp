@@ -73,7 +73,7 @@ float get2procLimit(const char *title, int *histogram, bool output) {
         }
     }
     if (output) cout << "limit=" << limit << endl;
-    float limitfactor = (float)limit/256;
+    float limitfactor = (float)limit/256; // is this correct?
     if (output) cout << "float=" << limitfactor << endl << endl;
     return limitfactor;
 }
