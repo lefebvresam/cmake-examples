@@ -4,10 +4,10 @@
 #include <stdint.h>
 
 class Histogram {
-        int redHistogram[255];
-        int greenRedHistogram[255];
-        int greenBlueHistogram[255];
-        int blueHistogram[255];
+        int redHistogram[256];
+        int greenRedHistogram[256];
+        int greenBlueHistogram[256];
+        int blueHistogram[256];
     public:
         Histogram();
         ~Histogram();

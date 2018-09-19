@@ -28,10 +28,9 @@ int main(int argc, char *argv[])
     file.seekg (0, ios::beg); // point to begin of file
     file.read((char*)memblock, size);
     file.close();
-    cout << "the entire file content is in memory" << endl;
-    cout << "First two bytes: " << setfill('0') << setw(2) << hex << *memblock + 0 << " " << *memblock + 1 << endl << endl;
+    cout << "the entire file content is in memory" << endl << endl;
+    //cout << "First two bytes: " << setfill('0') << setw(2) << hex << *memblock + 0 << " " << *memblock + 1 << endl << endl;
 
-    // calculate the histograms
     Histogram histogram;
     get_histograms(memblock, &histogram);
     
@@ -45,8 +44,16 @@ int main(int argc, char *argv[])
     // histogram.get2procLimitGreenBlueHistogram(true);
     // histogram.get2procLimitBlueHistogram(true);
 
-    cout << "max=" << histogram.get2proclimitMaximum() << endl;
-    
+    float observed = histogram.get2proclimitMaximum();
+    float offset = calc_offset(memblock);
+    float target = 0.8;
+    float gain = (target-offset)/(observed-offset);
+
+    cout << "observed = " << observed << endl;
+    cout << "offset = " << offset << endl;
+    cout << "target = " << target << endl;
+    cout << "gain = " << gain << endl;
+        
     free(memblock);
   }
   else cout << "Unable to open file" << endl;
@@ -96,4 +103,32 @@ void get_histograms(uint8_t *data, Histogram *histogram) {
             offsetRowTwo += colStep;
         }
     }
+}
+
+#define OPTICAL_BLACK_WIDTH 3864
+#define OPTICAL_BLACK_HEIGHT 16
+float calc_offset(uint8_t * frame) {
+    long sum = 0;
+    uint8_t *in_tmp = frame;
+
+    // Line format: (OPTICAL_BLACK_WIDTH times 3 bytes) + 4 bytes padding
+    // Two 12-bit pixels per 3 bytes, format: P1[11:4] P2[11:4] P2[3:0]P1[3:0]
+    for(int y = 0; y < OPTICAL_BLACK_HEIGHT; y++) { // line per line
+        for(int x = 0; x < OPTICAL_BLACK_WIDTH / 2; x++) { // for each pixel (2x2)
+            uint16_t tmp;
+            // First Pixel: P1[11:4]P1[3:0]
+            tmp = ((uint16_t)(*in_tmp & 0xFF) << 4) | (*(in_tmp + 2) & 0x0F);
+            sum += tmp;
+            // Second Pixel: P2[11:4]P2[3:0]
+            tmp = ((uint16_t)(*(in_tmp + 1) & 0xFF) << 4) | ((*(in_tmp + 2) & 0xF0) >> 4);
+            sum += tmp;
+            in_tmp+=3; // move the pointer
+        }
+        // Skip 4 dummy bytes at end of each line
+        in_tmp += 4;
+    }
+    //cout << "sum=" << dec << sum << endl;
+    float avg = (float)sum/(OPTICAL_BLACK_WIDTH * OPTICAL_BLACK_HEIGHT);
+    //cout << "avg=" << avg << endl;
+    return avg/4095;
 }

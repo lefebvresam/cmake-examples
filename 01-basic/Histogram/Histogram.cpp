@@ -4,8 +4,7 @@
 using namespace std;
 
 Histogram::Histogram() {
-    // initialaize data
-    for (int i = 0; i < 255; i++) {
+    for (int i = 0; i < 256; i++) {
         redHistogram[i] = 0;
         greenRedHistogram[i] = 0;
         greenBlueHistogram[i] = 0;
@@ -34,7 +33,7 @@ void Histogram::incrementBlueHistogram(uint8_t position) {
 
 void printHistogram(const char *title, int *histogram) {
     cout << title;
-    for (int i = 0; i < 255; i++) 
+    for (int i = 0; i < 256; i++) 
         cout << dec << histogram[i] << ' ';
     cout << endl << endl;
 }
@@ -58,18 +57,18 @@ void Histogram::printBlueHistogram() {
 float get2procLimit(const char *title, int *histogram, bool output) {
     if (output) cout << title << endl;
     int sum = 0;
-    for (int i = 0; i < 255; i++) {
+    for (int i = 0; i < 256; i++) {
         sum += histogram[i];
     }
     if (output) cout << "sum=" << sum << endl;
     int twoproc = sum * 0.02;
     if (output) cout << "twoproc=" << twoproc << endl;
     int acc = 0, limit = 0;
-    for (int i = 255; i > 0; i--) {
-        acc += histogram[i];
+    for (int i = 256; i > 0; i--) {
+        acc += histogram[i-1];
         if (acc > twoproc) {
             if (output) cout << "acc=" << acc << endl;
-            limit = i;
+            limit = i-1;
             break;
         }
     }

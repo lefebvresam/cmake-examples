@@ -87,6 +87,7 @@ do
     fi
 
 echo "Running now ..."
+echo ""
 $ROOT_DIR/$dir/build/hello_cmake
 
 done
