@@ -32,34 +32,78 @@ void Histogram::incrementBlueHistogram(uint8_t position) {
     blueHistogram[position]++;
 }
 
-void Histogram::printRedHistogram() {
-    cout << "Red Histogram: ";
-    for (int i = 0; i < 255; i++) {
-        cout << dec << redHistogram[i] << ' ';
-    }
+void printHistogram(const char *title, int *histogram) {
+    cout << title;
+    for (int i = 0; i < 255; i++) 
+        cout << dec << histogram[i] << ' ';
     cout << endl << endl;
 }
 
+void Histogram::printRedHistogram() {
+    printHistogram("Red Histogram: ", redHistogram);
+ }
+
 void Histogram::printGreenRedHistogram() {
-    cout << "Green Red Histogram: ";
-    for (int i = 0; i < 255; i++) {
-        cout << dec << greenRedHistogram[i] << ' ';
-    }
-    cout << endl << endl;
+    printHistogram("Green Red Histogram: ", greenRedHistogram);
 }
 
 void Histogram::printGreenBlueHistogram() {
-    cout << "Green Blue Histogram: ";
-    for (int i = 0; i < 255; i++) {
-        cout << dec << greenBlueHistogram[i] << ' ';
-    }
-    cout << endl << endl;
+    printHistogram("Green Blue Histogram: ", greenBlueHistogram);
 }
 
 void Histogram::printBlueHistogram() {
-    cout << "Blue Histogram: ";
+    printHistogram("Blue Histogram: ", blueHistogram);
+}
+
+float get2procLimit(const char *title, int *histogram, bool output) {
+    if (output) cout << title << endl;
+    int sum = 0;
     for (int i = 0; i < 255; i++) {
-        cout << dec << blueHistogram[i] << ' ';
+        sum += histogram[i];
     }
-    cout << endl << endl;
+    if (output) cout << "sum=" << sum << endl;
+    int twoproc = sum * 0.02;
+    if (output) cout << "twoproc=" << twoproc << endl;
+    int acc = 0, limit = 0;
+    for (int i = 255; i > 0; i--) {
+        acc += histogram[i];
+        if (acc > twoproc) {
+            if (output) cout << "acc=" << acc << endl;
+            limit = i;
+            break;
+        }
+    }
+    if (output) cout << "limit=" << limit << endl;
+    float limitfactor = (float)limit/256;
+    if (output) cout << "float=" << limitfactor << endl << endl;
+    return limitfactor;
+}
+
+float Histogram::get2procLimitRedHistogram(bool output) {
+    return get2procLimit("Red Histogram: ", redHistogram, output);
+}
+
+float Histogram::get2procLimitGreenRedHistogram(bool output) {
+    return get2procLimit("Green Red Histogram: ", greenRedHistogram, output);
+}
+
+float Histogram::get2procLimitGreenBlueHistogram(bool output) {
+    return get2procLimit("Green Blue Histogram: ", greenBlueHistogram, output);
+}
+
+float Histogram::get2procLimitBlueHistogram(bool output) {
+    return get2procLimit("Blue Histogram: ", blueHistogram, output);
+}
+
+float Histogram::get2proclimitMaximum() {
+    float max = 0, current = 0;
+    current = get2procLimitRedHistogram(false);
+    if (current > max) max = current;
+    current = get2procLimitGreenRedHistogram(false);
+    if (current > max) max = current;
+    current = get2procLimitGreenBlueHistogram(false);
+    if (current > max) max = current;
+    current = get2procLimitBlueHistogram(false);
+    if (current > max) max = current;
+    return max;
 }

@@ -19,6 +19,11 @@ class Histogram {
         void printGreenRedHistogram();
         void printGreenBlueHistogram();
         void printBlueHistogram();
+        float get2procLimitRedHistogram(bool output);
+        float get2procLimitGreenRedHistogram(bool output);
+        float get2procLimitGreenBlueHistogram(bool output);
+        float get2procLimitBlueHistogram(bool output);
+        float get2proclimitMaximum();
 };
 
 #endif

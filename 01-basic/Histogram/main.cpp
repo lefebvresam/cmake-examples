@@ -34,14 +34,22 @@ int main(int argc, char *argv[])
     // calculate the histograms
     Histogram histogram;
     get_histograms(memblock, &histogram);
-    histogram.printRedHistogram();
-    histogram.printGreenRedHistogram();
-    histogram.printGreenBlueHistogram();
-    histogram.printBlueHistogram();
+    
+    // histogram.printRedHistogram();
+    // histogram.printGreenRedHistogram();
+    // histogram.printGreenBlueHistogram();
+    // histogram.printBlueHistogram();
+    
+    // histogram.get2procLimitRedHistogram(true);
+    // histogram.get2procLimitGreenRedHistogram(true);
+    // histogram.get2procLimitGreenBlueHistogram(true);
+    // histogram.get2procLimitBlueHistogram(true);
 
+    cout << "max=" << histogram.get2proclimitMaximum() << endl;
+    
     free(memblock);
   }
-  else cout << "Unable to open file";
+  else cout << "Unable to open file" << endl;
   return 0;
 }
 
