@@ -33,32 +33,11 @@ int main(int argc, char *argv[])
 
     // calculate the histograms
     Histogram histogram;
-
-    get_histograms(memblock, histogram);
-
-    // cout << "red histogram: ";
-    // for (int i = 0; i < 255; i++) {
-    //     cout << dec << histogramData.red[i] << ' ';
-    // }
-    // cout << endl << endl;
-
-    // cout << "greenRed histogram: ";
-    // for (int i = 0; i < 255; i++) {
-    //     cout << dec << histogramData.greenRed[i] << ' ';
-    // }
-    // cout << endl << endl;
-
-    // cout << "greenBlue histogram: ";
-    // for (int i = 0; i < 255; i++) {
-    //     cout << dec << histogramData.greenBlue[i] << ' ';
-    // }
-    // cout << endl << endl;
-
-    // cout << "blue histogram: ";
-    // for (int i = 0; i < 255; i++) {
-    //     cout << dec << histogramData.blue[i] << ' ';
-    // }
-    // cout << endl << endl;
+    get_histograms(memblock, &histogram);
+    histogram.printRedHistogram();
+    histogram.printGreenRedHistogram();
+    histogram.printGreenBlueHistogram();
+    histogram.printBlueHistogram();
 
     free(memblock);
   }
@@ -66,7 +45,7 @@ int main(int argc, char *argv[])
   return 0;
 }
 
-void get_histograms(uint8_t * data, Histogram histogram) {
+void get_histograms(uint8_t *data, Histogram *histogram) {
     // Frame has 2218 lines, first 16 are optical black, next there are 6 not to be used lines.
     // The 'active' area, height 2160, is centered in the remaining area, so with a border of 18 leading and trailing lines.
     // The width is 3864 of which the active area is 3840, so 12 leading and trailing columns.
@@ -100,10 +79,10 @@ void get_histograms(uint8_t * data, Histogram histogram) {
         {
             // Increment the histogram bin corresponding to the current sub-pixel value
             // Note that mBayer is used to select the correct color for the current pixel coordinate
-            histogram.getRedHistogram()[0xFF & data[offsetRowOne    ]]++; // Top left - red
-            histogram.getGreenRedHistogram()[0xFF & data[offsetRowOne + 1]]++; // Top right - greenRed
-            histogram.getGreenBlueHistogram()[0xFF & data[offsetRowTwo    ]]++; // Bottom left - greenBlue
-            histogram.getBlueHistogram()[0xFF & data[offsetRowTwo + 1]]++; // Bottom right - blue
+            histogram->incrementRedHistogram(0xFF & data[offsetRowOne    ]); // Top left - red
+            histogram->incrementGreenRedHistogram(0xFF & data[offsetRowOne + 1]); // Top right - greenRed
+            histogram->incrementGreenBlueHistogram(0xFF & data[offsetRowTwo    ]); // Bottom left - greenBlue
+            histogram->incrementBlueHistogram(0xFF & data[offsetRowTwo + 1]); // Bottom right - blue
 
             offsetRowOne += colStep;
             offsetRowTwo += colStep;

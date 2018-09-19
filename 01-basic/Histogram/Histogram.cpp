@@ -1,4 +1,7 @@
 #include "Histogram.hpp"
+#include <stdint.h>
+#include <iostream>
+using namespace std;
 
 Histogram::Histogram() {
     // initialaize data
@@ -13,18 +16,50 @@ Histogram::Histogram() {
 Histogram::~Histogram() {    
 }
 
-int* Histogram::getRedHistogram() {
-    return redHistogram;
+void Histogram::incrementRedHistogram(uint8_t position) {
+    redHistogram[position]++;
 }
 
-int* Histogram::getGreenRedHistogram() {
-    return greenRedHistogram;
+void Histogram::incrementGreenRedHistogram(uint8_t position) {
+    greenRedHistogram[position]++;
 }
 
-int* Histogram::getGreenBlueHistogram() {
-    return greenBlueHistogram;
+void Histogram::incrementGreenBlueHistogram(uint8_t position) {
+    greenBlueHistogram[position]++;
 }
 
-int* Histogram::getBlueHistogram() {
-    return blueHistogram;
+void Histogram::incrementBlueHistogram(uint8_t position) {
+    blueHistogram[position]++;
+}
+
+void Histogram::printRedHistogram() {
+    cout << "Red Histogram: ";
+    for (int i = 0; i < 255; i++) {
+        cout << dec << redHistogram[i] << ' ';
+    }
+    cout << endl << endl;
+}
+
+void Histogram::printGreenRedHistogram() {
+    cout << "Green Red Histogram: ";
+    for (int i = 0; i < 255; i++) {
+        cout << dec << greenRedHistogram[i] << ' ';
+    }
+    cout << endl << endl;
+}
+
+void Histogram::printGreenBlueHistogram() {
+    cout << "Green Blue Histogram: ";
+    for (int i = 0; i < 255; i++) {
+        cout << dec << greenBlueHistogram[i] << ' ';
+    }
+    cout << endl << endl;
+}
+
+void Histogram::printBlueHistogram() {
+    cout << "Blue Histogram: ";
+    for (int i = 0; i < 255; i++) {
+        cout << dec << blueHistogram[i] << ' ';
+    }
+    cout << endl << endl;
 }
