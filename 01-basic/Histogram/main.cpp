@@ -8,7 +8,7 @@
 using namespace std;
 
 // running in docker:
-// docker run --rm -e DEV_UID=`id -u` -e DEV_GID=`id -u` -v ~/cmake-examples/:/media/local -it matrim/cmake-examples:3.10.3 /media/local/test.sh
+// docker run --rm -e DEV_UID=`id -u` -e DEV_GID=`id -u` -v ~/cmake-examples/:/media/local -it matrim/cmake-examples:3.10.3 /media/local/test(_short).sh
 //                                                        |- mounting part                                                   |-script to run
 // checking the test data:
 // hexdump -n 20 testdata.raw
@@ -31,7 +31,10 @@ int main(int argc, char *argv[])
     cout << "the entire file content is in memory" << endl << endl;
     //cout << "First two bytes: " << setfill('0') << setw(2) << hex << *memblock + 0 << " " << *memblock + 1 << endl << endl;
 
-    cout << "exposuretime = " << calculateNewExposureTime(memblock) << endl;
+    Histogram histogram;
+    get_histograms(memblock, &histogram);
+    cout << "locked = " << (checkExposureLock(&histogram) ? "true" : "false") << endl;
+    cout << "new exposuretime = " << calculateNewExposureTime(memblock, &histogram) << endl;
        
     free(memblock);
   }
@@ -39,39 +42,60 @@ int main(int argc, char *argv[])
   return 0;
 }
 
-float calculateNewExposureTime(uint8_t *data) {
-    Histogram histogram;
-    get_histograms(data, &histogram);
-    
-    // histogram.printRedHistogram();
-    // histogram.printGreenRedHistogram();
-    // histogram.printGreenBlueHistogram();
-    // histogram.printBlueHistogram();
-    
-    // histogram.get2procLimitRedHistogram(true);
-    // histogram.get2procLimitGreenRedHistogram(true);
-    // histogram.get2procLimitGreenBlueHistogram(true);
-    // histogram.get2procLimitBlueHistogram(true);
+// check wether the observed percentile is in the range [TARGET_PERCENTILE_VALUE - 0,02] - [TARGET_PERCENTILE_VALUE + 0,02]
+// true: lock, false: no lock
+#define TARGET_PERCENTILE_VALUE 0.8
+#define TARGET_PERCENTILE_VALUE_POSDEV 0.02
+#define TARGET_PERCENTILE_VALUE_NEGDEV 0.02
+bool checkExposureLock(Histogram *histogram) {
+    float currentpercentile = histogram->get2proclimitMaximum();
+    float maxpercentile = TARGET_PERCENTILE_VALUE + TARGET_PERCENTILE_VALUE_POSDEV;
+    float targetpercentile = TARGET_PERCENTILE_VALUE;
+    float minpercentile = TARGET_PERCENTILE_VALUE - TARGET_PERCENTILE_VALUE_NEGDEV;
+    cout << "maxpercentile = " << maxpercentile << endl;
+    cout << "targetpercentile = " << targetpercentile << endl;    
+    cout << "minpercentile = " << minpercentile << endl;
+    if (currentpercentile > maxpercentile || currentpercentile < minpercentile)
+        return false;
+    else 
+        return true;
+}
 
-    float observed = histogram.get2proclimitMaximum();
+
+#define MAX_EXPOSURE_TIME 33.247260
+float calculateNewExposureTime(uint8_t *data, Histogram *histogram) {
+    
+    // histogram->printRedHistogram();
+    // histogram->printGreenRedHistogram();
+    // histogram->printGreenBlueHistogram();
+    // histogram->printBlueHistogram();
+    
+    // histogram->get2procLimitRedHistogram(true);
+    // histogram->get2procLimitGreenRedHistogram(true);
+    // histogram->get2procLimitGreenBlueHistogram(true);
+    // histogram->get2procLimitBlueHistogram(true);
+
+    float observed = histogram->get2proclimitMaximum();
     float offset = calc_offset(data);
     float target = TARGET_PERCENTILE_VALUE;
+    float maxexptime = MAX_EXPOSURE_TIME;
 
-    cout << "observed = " << observed << endl;
-    cout << "offset = " << offset << endl;
-    cout << "target = " << target << endl;
-
+    cout << "observed percentile value = " << observed << endl;
+    cout << "offset black level = " << offset << endl;
+    cout << "target percentile value = " << target << endl;
+    cout << "max exposure time = " << maxexptime << "ms" << endl;
+    
     float exposuretime = -1;
     if (offset >= target) {
         cout << "Abnormally high black level, exposure time will not be updated" << endl;
     } else  {
         if (offset >= observed) {
             cout << "Observed percentile value is below the black level, exposure time will be set to maximum" << endl;
-            exposuretime = MAX_EXPOSURE_TIME;
+            exposuretime = maxexptime;
         } else {
             float gain = (target-offset)/(observed-offset);
-            exposuretime = min(MAX_EXPOSURE_TIME*gain, MAX_EXPOSURE_TIME);
-            cout << "gain = " << gain << endl;
+            exposuretime = min(maxexptime*gain, maxexptime);
+            cout << "exposure time gain = " << gain << endl;
         }
     }
     return exposuretime;
