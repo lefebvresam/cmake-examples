@@ -19,8 +19,7 @@ int main(int argc, char *argv[])
   char * memblock;
 
   ifstream file ("../testdata.raw", ios::in|ios::binary|ios::ate); // ate means point to end of file
-  if (file.is_open())
-  {
+  if (file.is_open()) {
     size = file.tellg();
     cout << "file size = " << size << "B" << endl;
     uint8_t* memblock;
