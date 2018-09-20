@@ -31,8 +31,17 @@ int main(int argc, char *argv[])
     cout << "the entire file content is in memory" << endl << endl;
     //cout << "First two bytes: " << setfill('0') << setw(2) << hex << *memblock + 0 << " " << *memblock + 1 << endl << endl;
 
+    cout << "exposuretime = " << calculateNewExposureTime(memblock) << endl;
+       
+    free(memblock);
+  }
+  else cout << "Unable to open file" << endl;
+  return 0;
+}
+
+float calculateNewExposureTime(uint8_t *data) {
     Histogram histogram;
-    get_histograms(memblock, &histogram);
+    get_histograms(data, &histogram);
     
     // histogram.printRedHistogram();
     // histogram.printGreenRedHistogram();
@@ -45,33 +54,27 @@ int main(int argc, char *argv[])
     // histogram.get2procLimitBlueHistogram(true);
 
     float observed = histogram.get2proclimitMaximum();
-    float offset = calc_offset(memblock);
+    float offset = calc_offset(data);
     float target = TARGET_PERCENTILE_VALUE;
 
     cout << "observed = " << observed << endl;
     cout << "offset = " << offset << endl;
     cout << "target = " << target << endl;
 
+    float exposuretime = -1;
     if (offset >= target) {
         cout << "Abnormally high black level, exposure time will not be updated" << endl;
     } else  {
-        float gain;
-        float exposuretime;
         if (offset >= observed) {
             cout << "Observed percentile value is below the black level, exposure time will be set to maximum" << endl;
             exposuretime = MAX_EXPOSURE_TIME;
         } else {
-            gain = (target-offset)/(observed-offset);
+            float gain = (target-offset)/(observed-offset);
             exposuretime = min(MAX_EXPOSURE_TIME*gain, MAX_EXPOSURE_TIME);
+            cout << "gain = " << gain << endl;
         }
-        cout << "gain = " << gain << endl;
-        cout << "exposuretime = " << exposuretime << endl;
     }
-        
-    free(memblock);
-  }
-  else cout << "Unable to open file" << endl;
-  return 0;
+    return exposuretime;
 }
 
 void get_histograms(uint8_t *data, Histogram *histogram) {
